@@ -60,7 +60,7 @@ def add_product(request):
     else:
         form = ProductForm()
 
-    return render(request, 'userprofile/add_product.html', {'title':'Add Product','form': form} )
+    return render(request, 'userprofile/product_form.html', {'title':'Add Product','form': form} )
 
 @login_required
 def edit_product(request, pk):
@@ -78,7 +78,7 @@ def edit_product(request, pk):
     else:
         form = ProductForm(instance=product)
 
-    return render(request, 'userprofile/add_product.html', {'title':'Edit Product', 'product':product, 'form': form} )
+    return render(request, 'userprofile/product_form.html', {'title':'Edit Product', 'product':product, 'form': form} )
 
 @login_required
 def delete_product(request, pk):
