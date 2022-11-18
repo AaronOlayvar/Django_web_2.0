@@ -15,7 +15,7 @@
 
     </form>
 
-    {% if title == 'Edit Product' %}
-        <a href="#" class="mt-4 inline-block py-4 px-5 bg-red-500 text-white hover:bg-red-800">Delete Product</a>
+    {% if product %}
+        <a href="{% url 'delete_product' product.id %}" class="mt-4 inline-block py-4 px-5 bg-red-500 text-white hover:bg-red-800">Delete Product</a>
     {% endif %}
 {% endblock %}

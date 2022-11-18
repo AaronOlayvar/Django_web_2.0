@@ -13,7 +13,8 @@ from store.models import Product
 # Create your views here.
 def vendor_detail(request, pk):
     user = User.objects.get(pk=pk)
-    return render(request, 'userprofile/vendor_detail.html', {'user': user})
+    products = user.products.filter(status= Product.ACTIVE)
+    return render(request, 'userprofile/vendor_detail.html', {'user': user, 'products': products,})
 
 def signup(request):
     if request.method == 'POST':
@@ -37,7 +38,8 @@ def myaccount(request):
 
 @login_required
 def my_store(request):
-    return render(request, 'userprofile/my_store.html')
+    products = request.user.products.exclude(status=Product.DELETED)
+    return render(request, 'userprofile/my_store.html', {'products': products })
 
 @login_required
 def add_product(request):
@@ -76,8 +78,15 @@ def edit_product(request, pk):
     else:
         form = ProductForm(instance=product)
 
-    return render(request, 'userprofile/add_product.html', {'title':'Edit Product', 'form': form} )
+    return render(request, 'userprofile/add_product.html', {'title':'Edit Product', 'product':product, 'form': form} )
 
 @login_required
 def delete_product(request, pk):
     product = Product.objects.filter(user=request.user).get(pk=pk)
+    product.status = Product.DELETED
+    product.save()
+
+    messages.success(request, 'The product was deleted')
+
+    return redirect('my_store')
+
