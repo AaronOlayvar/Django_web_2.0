@@ -1,12 +1,14 @@
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from .models import Userprofile
+from django.utils.text import slugify
 
 from store.forms import ProductForm
-from store.models import Product, Category
+from store.models import Product
 
 # Create your views here.
 def vendor_detail(request, pk):
@@ -39,11 +41,43 @@ def my_store(request):
 
 @login_required
 def add_product(request):
-    form = ProductForm()
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES)
 
-    return render(request, 'userprofile/add_product.html', {'form': form} )
+        if form.is_valid():
+            title = request.POST.get('title')
 
-# class ProductForm(forms.ModelForm):
-#     class Meta:
-#         model = Product
-#         fields = ('category', 'title', 'description', 'price', 'image',)
+            product = form.save(commit=False)
+            product.user = request.user
+            product.slug = slugify(title)
+            product.save()
+
+            messages.success(request, 'The product has been added')
+
+            return redirect('my_store')
+    else:
+        form = ProductForm()
+
+    return render(request, 'userprofile/add_product.html', {'title':'Add Product','form': form} )
+
+@login_required
+def edit_product(request, pk):
+    product = Product.objects.filter(user=request.user).get(pk=pk)
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST, request.FILES, instance=product)
+
+        if form.is_valid:
+            form.save()
+
+            messages.success(request, 'The changes was saved')
+
+            return redirect('my_store')
+    else:
+        form = ProductForm(instance=product)
+
+    return render(request, 'userprofile/add_product.html', {'title':'Edit Product', 'form': form} )
+
+@login_required
+def delete_product(request, pk):
+    product = Product.objects.filter(user=request.user).get(pk=pk)
