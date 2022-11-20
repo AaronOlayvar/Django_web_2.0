@@ -1,5 +1,6 @@
 from django.db.models import Q
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
+from .cart import Cart
 from .models import Product, Category
 
 def category_detail(request, slug):
@@ -19,3 +20,10 @@ def search(request):
     products = Product.objects.filter(status= Product.ACTIVE).filter(Q(title__icontains=query) | Q(description__icontains=query))
 
     return render(request, 'store/search.html', {'query':query, 'products': products, })
+
+def add_to_cart(request, product_id):
+    cart = Cart(request)
+    cart.add(product_id)
+
+    return redirect ('frontpage')
+
