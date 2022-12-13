@@ -4,6 +4,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from .cart import Cart
 from .models import Product, Category
 
+from .forms import OrderForm
+
 def category_detail(request, slug):
     category = get_object_or_404(Category, slug=slug)
     products = category.products.filter(status= Product.ACTIVE)
@@ -38,7 +40,15 @@ def cart_view(request):
 def checkout(request):
     cart = Cart(request)
 
-    return render(request, 'store/checkout.html', {'cart': cart})
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+
+        if form.is_valid():
+            return redirect('myaccount')
+    else:
+        form = OrderForm()
+
+    return render(request, 'store/checkout.html', {'cart': cart, 'form': form})
 
 def change_quantity(request, product_id):
     action = request.GET.get('action', '')
